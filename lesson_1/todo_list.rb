@@ -129,6 +129,67 @@ class TodoList
     result
   end
 
+  def each
+    idx = 0
+
+    while idx < @todos.size
+      yield(@todos[idx])
+      idx += 1
+    end
+
+    self
+  end
+
+  def select
+    selected_list = TodoList.new("#{self.title}")
+    
+    each do |item|
+      selected_list << item if yield(item)
+    end
+
+    selected_list
+  end
+
+  def find_by_title(str)
+    each do |item|
+      return item if item.title == str
+    end
+    nil
+  end
+
+  def all_done
+    done_items = select do |item|
+      item.done?
+    end
+  end
+
+  def all_not_done
+    not_done_items = select do |item|
+      !item.done?
+    end
+  end
+
+  def mark_done(str)
+    each do |item|
+      if item.title == str
+        item.done!
+        return
+      end
+    end
+  end
+
+  def mark_all_done
+    each do |item|
+      item.done!
+    end
+  end
+
+  def mark_all_undone
+    each do |item|
+      item.undone!
+    end
+  end
+
 end
 
 
@@ -218,6 +279,39 @@ end
 # # [X] Clean room
 # # [ ] Go to gym
 
+# todo1 = Todo.new("Buy milk")
+# todo2 = Todo.new("Clean room")
+# todo3 = Todo.new("Go to gym")
+
+# list = TodoList.new("Today's Todos")
+# list.add(todo1)
+# list.add(todo2)
+# list.add(todo3)
+
+# puts list
+
+# list.pop
+
+# puts list
+
+# list.mark_done_at(1)
+
+# puts list
+
+
+# todo1 = Todo.new("Buy milk")
+# todo2 = Todo.new("Clean room")
+# todo3 = Todo.new("Go to gym")
+
+# list = TodoList.new("Today's Todos")
+# list.add(todo1)
+# list.add(todo2)
+# list.add(todo3)
+
+# list.each do |todo|
+#   puts todo                   # calls Todo#to_s
+# end
+
 todo1 = Todo.new("Buy milk")
 todo2 = Todo.new("Clean room")
 todo3 = Todo.new("Go to gym")
@@ -227,12 +321,8 @@ list.add(todo1)
 list.add(todo2)
 list.add(todo3)
 
-puts list
+todo1.done!
 
-list.pop
+results = list.select { |todo| todo.done? }    # you need to implement this method
 
-puts list
-
-list.mark_done_at(1)
-
-puts list
+puts results.inspect
